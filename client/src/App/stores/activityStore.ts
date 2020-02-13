@@ -12,7 +12,27 @@ class ActivityStore {
   @observable target = "";
 
   @computed get activitiesByDate() {
-    return Array.from(this.activityRegistry.values()).sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+    return this.groupActivitiesByDate(Array.from(this.activityRegistry.values()));
+  }
+
+  groupActivitiesByDate(activities: IActivity[]) {
+    const sortedActivities = activities.sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+
+    return Object.entries(
+      sortedActivities.reduce((activities, activity) => {
+        // Reduce'að eftir DATE
+        // Fyrir er strengurinn: 2020-03-08T16:36:08
+        // Eftir er strengurinn: 2020-03-08.
+        const date = activity.date.split("T")[0];
+
+        // Notum date sem key. Ef að hann er til þá setjum við Activity í það array.
+        // Ef að sá Key er ekki til hendum við activity í sér array.
+        // Fyrir: Tómt Array
+        // Eftir:  Array: [Key sem er Date(string) : [Array: { Með Activity Objects.}]]
+        activities[date] = activities[date] ? [...activities[date], activity] : [activity];
+        return activities;
+      }, {} as { [key: string]: IActivity[] })
+    );
   }
 
   // Load Activities

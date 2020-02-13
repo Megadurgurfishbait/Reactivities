@@ -1,10 +1,10 @@
 import React, { useContext, useEffect } from "react";
-import { Card, Image, Button } from "semantic-ui-react";
+import { Grid } from "semantic-ui-react";
 import ActivityStore from "../../../App/stores/activityStore";
 import { observer } from "mobx-react-lite";
-import { RouteComponentProps, Link } from "react-router-dom";
+import { RouteComponentProps } from "react-router-dom";
 import { LoadingComponent } from "../../../App/layout/LoadingComponent";
-import { Routes } from "../../../App/Routes";
+import { ActivityDetailsHeader, ActivityDetailsChat, ActivityDetailsInfo, ActivityDetailsSidebar } from "./";
 
 interface DetailParams {
   id: string;
@@ -21,22 +21,16 @@ const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({ match, h
   if (loadingInitial || !activity) return <LoadingComponent content='Loading Activity..' />;
 
   return (
-    <Card fluid>
-      <Image src={`/assets/categoryImages/${activity!.category}.jpg`} wrapped ui={false} />
-      <Card.Content>
-        <Card.Header>{activity!.title}</Card.Header>
-        <Card.Meta>
-          <span>{activity!.date}</span>
-        </Card.Meta>
-        <Card.Description>{activity!.description}</Card.Description>
-      </Card.Content>
-      <Card.Content extra>
-        <Button.Group widths={2}>
-          <Button as={Link} to={`${Routes.Edit}/${activity.id}`} basic color='blue' content='Edit' />
-          <Button onClick={() => history.push(`${Routes.Activities}`)} basic color='blue' content='Cancel' />
-        </Button.Group>
-      </Card.Content>
-    </Card>
+    <Grid>
+      <Grid.Column width={10}>
+        <ActivityDetailsHeader activity={activity} />
+        <ActivityDetailsInfo activity={activity} />
+        <ActivityDetailsChat />
+      </Grid.Column>
+      <Grid.Column width={6}>
+        <ActivityDetailsSidebar />
+      </Grid.Column>
+    </Grid>
   );
 };
 
