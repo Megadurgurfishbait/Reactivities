@@ -1,32 +1,48 @@
-import React, { useState, FormEvent, useContext } from "react";
+import React, { useState, FormEvent, useContext, useEffect } from "react";
 import { Segment, Form, Button } from "semantic-ui-react";
 import { v4 as uuid } from "uuid";
 import { IActivity } from "../../../App/Models/activity";
 import { ActivityStore } from "../../../App/stores";
 import { observer } from "mobx-react-lite";
+import { RouteComponentProps, Link } from "react-router-dom";
+import { Routes } from "../../../App/Routes";
 
-interface IProps {
-  activity: IActivity | undefined;
+interface DetailParams {
+  id: string;
 }
 
-const ActivityForm: React.FC<IProps> = ({ activity: initFormSate }) => {
+// Til að switch'a á milli Create og Edit Mode og tæma formið notum við ClearActivity í
+// Cleanup function í useEffect. Til að unmount'a breytum við um KEY á þessum
+// Component í APP.tsx
+
+const ActivityForm: React.FC<RouteComponentProps<DetailParams>> = ({ match, history }) => {
   const activityStore = useContext(ActivityStore);
-  const { createActivity, editActivity, submitting, cancelFormOpen } = activityStore;
-  const initForm = () => {
-    if (initFormSate) {
-      return initFormSate;
-    } else {
-      return {
-        id: "",
-        title: "",
-        description: "",
-        category: "",
-        date: "",
-        city: "",
-        venue: ""
-      };
-    }
-  };
+  const {
+    createActivity,
+    editActivity,
+    submitting,
+    activity: initFormSate,
+    loadActivity,
+    clearActivity
+  } = activityStore;
+
+  const [activity, setActivity] = useState<IActivity>({
+    id: "",
+    title: "",
+    description: "",
+    category: "",
+    date: "",
+    city: "",
+    venue: ""
+  });
+
+  // Tökum ID frá
+
+  useEffect(() => {
+    if (match.params.id && activity.id.length === 0)
+      loadActivity(match.params.id).then(() => initFormSate && setActivity(initFormSate));
+    return () => clearActivity();
+  }, [loadActivity, clearActivity, match.params.id, initFormSate, activity.id.length]);
 
   const handleInputChange = (e: FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.currentTarget;
@@ -39,13 +55,12 @@ const ActivityForm: React.FC<IProps> = ({ activity: initFormSate }) => {
         ...activity,
         id: uuid()
       };
-      createActivity(newActivity);
+      createActivity(newActivity).then(() => history.push(`${Routes.Activities}/${newActivity.id}`));
     } else {
-      editActivity(activity);
+      editActivity(activity).then(() => history.push(`${Routes.Activities}/${activity.id}`));
     }
   };
 
-  const [activity, setActivity] = useState<IActivity>(initForm);
   return (
     <Segment clearing>
       <Form onSubmit={handleSubmit}>
@@ -68,7 +83,7 @@ const ActivityForm: React.FC<IProps> = ({ activity: initFormSate }) => {
         <Form.Input onChange={handleInputChange} name='city' placeholder='City' value={activity.city} />
         <Form.Input onChange={handleInputChange} name='venue' placeholder='Venue' value={activity.venue} />
         <Button loading={submitting} floated='right' positive type='submit' content='Submit' />
-        <Button onClick={cancelFormOpen} floated='right' type='button' content='Cancel' />
+        <Button as={Link} to={`${Routes.Activities}`} floated='right' type='button' content='Cancel' />
       </Form>
     </Segment>
   );

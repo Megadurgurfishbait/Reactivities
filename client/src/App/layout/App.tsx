@@ -1,31 +1,45 @@
-import React, { useEffect, useContext } from "react";
+import React from "react";
 import { observer } from "mobx-react-lite";
 import NavBar from "../../Features/nav/navbar";
-import ActivityStore from "../stores/activityStore";
 
+import { Route, withRouter, RouteComponentProps } from "react-router-dom";
 // Styles
 import { AppContainer, MyGlobalStyle } from "./app.styled";
 import ActivityDashboard from "../../Features/activities/dashboard/ActivityDashboard";
-import { LoadingComponent } from "./LoadingComponent";
 
-const App = () => {
-  const activityStore = useContext(ActivityStore);
+import { HomePage } from "../../Features/home";
+import ActivityForm from "../../Features/activities/form/ActivityForm";
+import ActivityDetails from "../../Features/activities/Details/ActivityDetails";
+import { Routes } from "../Routes";
 
-  useEffect(() => {
-    activityStore.loadActivities();
-  }, [activityStore]);
+// Tökum inn Location til að bæta við KEY á ActivityForm
+// Gerum það til að reset'a form með því að unmounte'a  component.
+// Það gerist þegar key breytist.
 
-  if (activityStore.loadingInitial) return <LoadingComponent content={"Loading Activities..."} />;
-
+const App: React.FC<RouteComponentProps> = ({ location }) => {
   return (
     <>
       <MyGlobalStyle />
-      <NavBar />
-      <AppContainer>
-        <ActivityDashboard />
-      </AppContainer>
+      <Route exact path={`${Routes.Home}`} component={HomePage} />
+      <Route
+        path={"/(.+)"}
+        render={() => (
+          <>
+            <NavBar />
+            <AppContainer>
+              <Route path={`${Routes.Activities}/:id`} component={ActivityDetails} />
+              <Route exact path={`${Routes.Activities}`} component={ActivityDashboard} />
+              <Route
+                key={location.key}
+                path={[`${Routes.CreateActivity}`, `${Routes.Edit}/:id`]}
+                component={ActivityForm}
+              />
+            </AppContainer>
+          </>
+        )}
+      />
     </>
   );
 };
 
-export default observer(App);
+export default withRouter(observer(App));

@@ -1,27 +1,26 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Grid } from "semantic-ui-react";
 import ActivitiyList from "./ActivityList";
-import ActivityDetails from "../Details/ActivityDetails";
-import ActivityForm from "../form/ActivityForm";
 import { observer } from "mobx-react-lite";
-import ActivityStore from "../../../App/stores/activityStore";
+import { ActivityStore } from "../../../App/stores";
+import { LoadingComponent } from "../../../App/layout/LoadingComponent";
 
 const ActivityDashboard: React.FC = () => {
   const activityStore = useContext(ActivityStore);
-  const { editMode, selectedActivity } = activityStore;
+
+  useEffect(() => {
+    activityStore.loadActivities();
+  }, [activityStore]);
+
+  if (activityStore.loadingInitial) return <LoadingComponent content={"Loading Activities..."} />;
+
   return (
     <Grid>
       <Grid.Column width={10}>
         <ActivitiyList />
       </Grid.Column>
       <Grid.Column width={6}>
-        {selectedActivity && !editMode && <ActivityDetails />}
-        {editMode && (
-          <ActivityForm
-            key={(selectedActivity && selectedActivity.id) || 0} // Ef að við setjum key sem ID og gerum nýtt Form þá breytist KEY og veldur RE-Render
-            activity={selectedActivity}
-          />
-        )}
+        <h2>Activity filters</h2>
       </Grid.Column>
     </Grid>
   );
