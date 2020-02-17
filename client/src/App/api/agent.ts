@@ -1,8 +1,31 @@
 import axios, { AxiosResponse } from "axios";
 import { IActivity } from "../Models/activity";
 import { Routes } from "../Routes";
+import { history } from "../..";
+import { toast } from "react-toastify";
 
 axios.defaults.baseURL = "http://localhost:5000/api";
+
+// Use tekur tvö arguments, fyrsta er ef að promise er staðið við.
+// Seinna er On Rejected
+axios.interceptors.response.use(undefined, error => {
+  if (error.message === "Network Error" && !error.response) {
+    toast.error("Network - Make Sure API is Running");
+  }
+  const { status, data, config, message } = error.response;
+  if (status === 404) {
+    history.push("/notfound");
+  }
+
+  if (status === 400 && config.method === "get" && data.errors.hasOwnProperty("id")) {
+    history.push("/notfound");
+  }
+
+  if (status === 500) {
+    toast.error("Server Error - Check the Terminal for more info!");
+  }
+  throw error;
+});
 
 const responseBody = (response: AxiosResponse) => response.data;
 
