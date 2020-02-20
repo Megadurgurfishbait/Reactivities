@@ -3,8 +3,21 @@ import { IActivity } from "../Models/activity";
 import { Routes } from "../Routes";
 import { history } from "../..";
 import { toast } from "react-toastify";
+import { IUser, IUserFormValues } from "../Models/user";
 
 axios.defaults.baseURL = "http://localhost:5000/api";
+
+axios.interceptors.request.use(
+  config => {
+    const token = window.localStorage.getItem("jwt");
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
 
 // Use tekur tvö arguments, fyrsta er ef að promise er staðið við.
 // Seinna er On Rejected
@@ -12,7 +25,7 @@ axios.interceptors.response.use(undefined, error => {
   if (error.message === "Network Error" && !error.response) {
     toast.error("Network - Make Sure API is Running");
   }
-  const { status, data, config, message } = error.response;
+  const { status, data, config } = error.response;
   if (status === 404) {
     history.push("/notfound");
   }
@@ -24,7 +37,7 @@ axios.interceptors.response.use(undefined, error => {
   if (status === 500) {
     toast.error("Server Error - Check the Terminal for more info!");
   }
-  throw error;
+  throw error.response;
 });
 
 const responseBody = (response: AxiosResponse) => response.data;
@@ -63,6 +76,13 @@ const Activities = {
   delete: (id: string) => requests.del(`${Routes.Activities}/${id}`)
 };
 
+const User = {
+  current: (): Promise<IUser> => requests.get("/user"),
+  login: (user: IUserFormValues): Promise<IUser> => requests.post("/user/login", user),
+  register: (user: IUserFormValues): Promise<IUser> => requests.post("/user/register", user)
+};
+
 export default {
-  Activities
+  Activities,
+  User
 };
