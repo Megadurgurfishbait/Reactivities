@@ -2,5 +2,8 @@ export const Routes = {
   Activities: `/activities`,
   CreateActivity: `/createActivity`,
   Home: `/`,
-  Edit: `/manage`
+  Edit: `/manage`,
+  User: `/user`,
+  UserLogin: `/user/login`,
+  UserRegister: `/user/Register`
 };
