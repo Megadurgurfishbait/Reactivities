@@ -6,6 +6,9 @@ export interface IActivity {
   date: Date;
   city: string;
   venue: string;
+  isGoing: boolean;
+  isHost: boolean;
+  attendees: IAttendee[];
 }
 
 // Partial gerir alla hluti í IActivity Optional.
@@ -31,4 +34,11 @@ export class ActivityFormValues implements IActivityFormValues {
     // Typescript auto mappar á variables sem eru í settum class.
     Object.assign(this, init);
   }
+}
+
+export interface IAttendee {
+  username: string;
+  displayName: string;
+  image: string;
+  isHost: boolean;
 }

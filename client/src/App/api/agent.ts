@@ -73,7 +73,9 @@ const Activities = {
   detail: (id: string) => requests.get(`${Routes.Activities}/${id}`),
   create: (activity: IActivity) => requests.post(`${Routes.Activities}`, activity),
   update: (activity: IActivity) => requests.put(`${Routes.Activities}/${activity.id}`, activity),
-  delete: (id: string) => requests.del(`${Routes.Activities}/${id}`)
+  delete: (id: string) => requests.del(`${Routes.Activities}/${id}`),
+  attend: (id: string) => requests.post(`${Routes.Activities}/${id}/attend`, {}),
+  unattend: (id: string) => requests.del(`${Routes.Activities}/${id}/attend`)
 };
 
 const User = {
