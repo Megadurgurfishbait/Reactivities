@@ -13,10 +13,10 @@ import ActivityForm from "../../Features/activities/form/ActivityForm";
 import ActivityDetails from "../../Features/activities/Details/ActivityDetails";
 import { Routes } from "../Routes";
 import NotFound from "./NotFound";
-import { LoginForm } from "../../Features/User/LoginForm";
 import { RootStoreContext } from "../stores/rootStore";
 import { LoadingComponent } from "./LoadingComponent";
 import ModalContainer from "../Common/modals/ModalContainer";
+import ProfilePage from "../../Features/profiles/ProfilePage";
 
 // Tökum inn Location til að bæta við KEY á ActivityForm
 // Gerum það til að reset'a form með því að unmounte'a  component.
@@ -57,7 +57,7 @@ const App: React.FC<RouteComponentProps> = ({ location }) => {
                   path={[`${Routes.CreateActivity}`, `${Routes.Edit}/:id`]}
                   component={ActivityForm}
                 />
-                <Route path='/login' component={LoginForm} />
+                <Route path='/profile/:username' component={ProfilePage} />
                 <Route component={NotFound} />
               </Switch>
             </AppContainer>
